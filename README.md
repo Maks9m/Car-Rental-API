@@ -114,7 +114,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. **Run Migrations:**
+4. **Start DB (on Docker)**
+```zsh
+docker compose up -d
+```
+
+5. **Run Migrations:**
 ```zsh
 alembic upgrade head
 ```
