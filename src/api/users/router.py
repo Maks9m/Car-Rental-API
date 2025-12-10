@@ -8,6 +8,6 @@ from sqlalchemy.orm import Session
 router = APIRouter()
     
     
-@router.get("/")
+@router.get("")
 async def read_users(db: Session = Depends(dependencies.get_db)):
     return get_all_users(db)
