@@ -123,3 +123,8 @@ docker compose up -d
 ```zsh
 alembic upgrade head
 ```
+
+6. **Run Dev**
+```zsh
+python -m fastapi dev src/main.py
+```
