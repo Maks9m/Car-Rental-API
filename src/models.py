@@ -2,7 +2,7 @@ from sqlalchemy import String, DECIMAL, TIMESTAMP, Date, CHAR, ForeignKey, Enum,
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from datetime import date, datetime
 from decimal import Decimal
-import enum
+from enum import Enum as PyEnum
 
 
 class Base(DeclarativeBase):
@@ -10,7 +10,7 @@ class Base(DeclarativeBase):
 
 
 # Enums
-class LicenseType(str, enum.Enum):
+class LicenseType(str, PyEnum):
     M = "M"
     A = "A"
     A1 = "A1"
@@ -20,24 +20,24 @@ class LicenseType(str, enum.Enum):
     C1 = "C1"
     D1 = "D1"
 
-class FuelType(str, enum.Enum):
+class FuelType(str, PyEnum):
     PETROL = "petrol"
     DIESEL = "diesel"
     ELECTRIC = "electric"
     HYBRID = "hybrid"
 
-class Status(str, enum.Enum):
+class Status(str, PyEnum):
     PENDING = "pending"
     COMPLETED = "completed"
     CANCELED = "canceled"
 
-class CarStatus(str, enum.Enum):
+class CarStatus(str, PyEnum):
     AVAILABLE = "available"
     BOOKED = "booked"
     MAINTENANCE = "maintenance"
     UNAVAILABLE = "unavailable"
 
-class PaymentType(str, enum.Enum):
+class PaymentType(str, PyEnum):
     CREDIT_CARD = "credit_card"
     DEBIT_CARD = "debit_card"
     PAYPAL = "paypal"
