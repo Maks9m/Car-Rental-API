@@ -124,7 +124,12 @@ docker compose up -d
 alembic upgrade head
 ```
 
-6. **Run Dev**
+6. **Seed DB**
+```zsh
+python -m alembic.seed
+```
+
+7. **Run Dev**
 ```zsh
 python -m fastapi dev src/main.py
 ```
