@@ -9,7 +9,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     driver_license_id: int | None = None
-
+    password: str
 
 class UserUpdate(BaseModel):
     firstname: str | None = None
