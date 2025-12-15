@@ -8,3 +8,11 @@ class UserNotFound(NotFound):
 class DuplicateEmail(Conflict):
     def __init__(self, email: str):
         super().__init__(detail=f"Duplicate email: {email}")
+
+class EmptyUsersTable(NotFound):
+    def __init__(self):
+        super().__init__(detail="No users found")
+
+class UserAlreadyExists(Conflict):
+    def __init__(self, email: str):
+        super().__init__(detail=f"User with email {email} already exists")

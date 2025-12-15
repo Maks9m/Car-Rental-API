@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
+from src.driver_licenses.schemas import DriverLicenseCreate
 
 
 class UserBase(BaseModel):
@@ -7,9 +8,8 @@ class UserBase(BaseModel):
     email: EmailStr
 
 
-class UserCreate(UserBase):
-    driver_license_id: int | None = None
-    password: str
+class UserRegister(UserBase, DriverLicenseCreate):
+    password: str = Field(..., min_length=8)
 
 class UserUpdate(BaseModel):
     firstname: str | None = None
@@ -22,4 +22,7 @@ class UserResponse(UserBase):
     model_config = {"from_attributes": True}
     
     user_id: int
-    driver_license_id: int | None
+
+class UserCreate(UserBase):
+    password_hash: str
+    driver_license_id: str
