@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from src.models import User
 
-from src.users.schemas import UserResponse, UserRegister
+from src.users.schemas import UserInfo, UserResponse, UserRegister
 from src.users.exceptions import UserNotFound, EmptyUsersTable, UserAlreadyExists
 from src.users.repository import UserRepository
 
@@ -22,16 +22,22 @@ class UserService:
             raise EmptyUsersTable()
         return all_users
 
-    def get_user_by_id(self, db: Session, user_id: int) -> UserResponse | None:
+    def get_user_by_id(self, db: Session, user_id: int) -> UserResponse:
         user = self.user_repo.get_by_id(db, user_id)
         if not user:
             raise UserNotFound(user_id)
         return user
 
-    def get_user_by_email(self, db: Session, email: str) -> UserResponse | None:
+    def get_user_by_email(self, db: Session, email: str) -> UserResponse:
         user = self.user_repo.get_by_email(db, email)
         if not user:
-            raise UserNotFound()
+            raise UserNotFound(email)
+        return user
+    
+    def get_user_info(self, db: Session, email: str) -> UserInfo:
+        user = self.user_repo.get_by_email(db, email)
+        if not user:
+            raise UserNotFound(email)
         return user
     
     def register(self, db: Session, user_data: UserRegister) -> UserResponse:

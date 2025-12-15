@@ -4,7 +4,7 @@ from src.users.service import UserService
 from src.users.schemas import UserResponse, UserRegister
 
 
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["Users"])
 service = UserService()
 
 

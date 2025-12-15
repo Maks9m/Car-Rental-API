@@ -26,3 +26,10 @@ class UserResponse(UserBase):
 class UserCreate(UserBase):
     password_hash: str
     driver_license_id: str
+
+class UserInfo(UserBase):
+    model_config = {"from_attributes": True}
+
+    user_id: int
+    password_hash: str
+    driver_license_id: int
