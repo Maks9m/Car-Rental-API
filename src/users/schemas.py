@@ -8,8 +8,9 @@ class UserBase(BaseModel):
     email: EmailStr
 
 
-class UserRegister(UserBase, DriverLicenseCreate):
+class UserRegister(UserBase):
     password: str = Field(..., min_length=8)
+    driver_license: DriverLicenseCreate
 
 class UserUpdate(BaseModel):
     firstname: str | None = None
@@ -25,7 +26,7 @@ class UserResponse(UserBase):
 
 class UserCreate(UserBase):
     password_hash: str
-    driver_license_id: str
+    driver_license_id: int
 
 class UserInfo(UserBase):
     model_config = {"from_attributes": True}

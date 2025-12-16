@@ -17,10 +17,8 @@ class UserRepository:
             firstname=user_data.firstname,
             lastname=user_data.lastname,
             email=user_data.email,
-            password_hash=user_data.password,
-            license_number=user_data.license_number,
-            license_type=user_data.license_type,
-            expiry_date=user_data.expiry_date
+            password_hash=user_data.password_hash,
+            driver_license_id=user_data.driver_license_id,
         )
         db.add(new_user)
         db.flush()

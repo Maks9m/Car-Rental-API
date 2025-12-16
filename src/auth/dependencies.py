@@ -1,5 +1,6 @@
-from fastapi import Depends, Session
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from src.database import get_db
 from src.models import User
