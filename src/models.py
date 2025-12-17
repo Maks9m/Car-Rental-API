@@ -118,10 +118,16 @@ class Car(Base):
 class Booking(Base):
     __tablename__ = "booking"
 
-    book_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    booking_id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("user.user_id", ondelete="SET NULL"), index=True)
     car_id: Mapped[int | None] = mapped_column(ForeignKey("car.car_id", ondelete="SET NULL"), index=True)
     status: Mapped[Status] = mapped_column(Enum(Status), default=Status.PENDING, index=True)
+    start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    end_date: Mapped[date] = mapped_column(Date, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("end_date >= start_date", name="check_end_date_after_start_date"),
+    )
 
     # Relationships
     user_rel: Mapped["User | None"] = relationship(back_populates="bookings")
@@ -133,7 +139,7 @@ class Trip(Base):
     __tablename__ = "trip"
 
     trip_id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    book_id: Mapped[int | None] = mapped_column(ForeignKey("booking.book_id", ondelete="SET NULL"), index=True)
+    booking_id: Mapped[int | None] = mapped_column(ForeignKey("booking.booking_id", ondelete="SET NULL"), index=True)
     start_location: Mapped[int | None] = mapped_column(ForeignKey("car_location.car_location_id", ondelete="SET NULL"), index=True)
     end_location: Mapped[int | None] = mapped_column(ForeignKey("car_location.car_location_id", ondelete="SET NULL"), index=True)
     start_time: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=False, server_default=func.now(), index=True)
