@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pydantic import BaseModel, EmailStr, Field
 
 from src.driver_licenses.schemas import DriverLicenseCreate
@@ -24,6 +25,14 @@ class UserResponse(UserBase):
     model_config = {"from_attributes": True}
     
     user_id: int
+
+class UserRankingResponse(BaseModel):
+    user_id: int
+    firstname: str
+    lastname: str
+    total_bookings: int
+    total_spent: Decimal
+    rank: int
 
 class UserCreate(UserBase):
     password_hash: str
