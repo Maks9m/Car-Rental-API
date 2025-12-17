@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from src.models import DriverLicense
+from src.logger import log_execution
 from src.driver_licenses.schemas import DriverLicenseCreate
 
 class DriverLicenseRepository:
@@ -9,6 +10,7 @@ class DriverLicenseRepository:
     def get_by_number(self, db: Session, license_number: str) -> DriverLicense | None:
         return db.query(DriverLicense).filter(DriverLicense.license_number == license_number).first()
     
+    @log_execution
     def create(self, db: Session, license_data: DriverLicenseCreate) -> DriverLicense:
         new_license = DriverLicense(
             license_number=license_data.license_number,
