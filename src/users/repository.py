@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
+
 from src.models import User
 from src.logger import log_execution
+
 from src.users.schemas import UserCreate
 
 class UserRepository:
@@ -26,8 +28,17 @@ class UserRepository:
         db.flush()
         return new_user
     
+    @log_execution
+    def update(self, db: Session, user: User, update_data: UserCreate) -> User:
+        if update_data.firstname:
+            user.firstname = update_data.firstname
+        if update_data.lastname:
+            user.lastname = update_data.lastname
+        if update_data.email:
+            user.email = update_data.email
+        if update_data.driver_license_id:
+            user.driver_license_id = update_data.driver_license_id
 
-    
-
-
-
+        db.commit()
+        db.refresh(user)
+        return user

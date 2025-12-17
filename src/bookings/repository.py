@@ -1,13 +1,37 @@
 from datetime import date
+
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
+
 from src.models import Booking, Status
 from src.logger import log_execution
+
 from src.bookings.schemas import BookingBase
 
 class BookingRepository:
     def get_by_id(self, db: Session, booking_id: int) -> Booking | None:
         return db.query(Booking).filter(Booking.booking_id == booking_id).first()
+    
+    def get_all(self, db: Session) -> list[Booking]:
+        return db.query(Booking).all()
+    
+    def get_user_bookings(self, db: Session, user_id: int) -> list[Booking]:
+        return db.query(Booking).filter(Booking.user_id == user_id).all()
+    
+    @log_execution
+    def create(self, db: Session, booking_data: BookingBase, user_id: int) -> Booking:
+        new_booking = Booking(
+            car_id=booking_data.car_id,
+            user_id=user_id,
+            start_date=booking_data.start_date,
+            end_date=booking_data.end_date,
+            status=Status.PENDING
+        )
+
+        db.add(new_booking)
+        db.commit()
+        db.refresh(new_booking)
+        return new_booking
     
     @log_execution
     def update_dates(self, db: Session, booking: Booking, new_dates: BookingBase) -> Booking:
@@ -41,7 +65,7 @@ class BookingRepository:
         return booking
     
     @log_execution
-    def confirm_booking(self, db: Session, booking: Booking) -> Booking:
+    def complete_booking(self, db: Session, booking: Booking) -> Booking:
         booking.status = Status.COMPLETED
         db.commit()
         db.refresh(booking)

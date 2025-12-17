@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
+
 from src.driver_licenses.schemas import DriverLicenseCreate
 
 

@@ -1,5 +1,6 @@
 from datetime import date
 from pydantic import BaseModel, field_validator
+
 from src.models import Status
 
 class BookingBase(BaseModel):
@@ -21,9 +22,7 @@ class BookingResponse(BookingBase):
     model_config = {"from_attributes": True}
 
 class BookingCreate(BookingBase):
-    user_id: int
     car_id: int
-    status: Status = Status.PENDING
 
 class BookingUpdateDates(BaseModel):
     start_date: date | None = None
