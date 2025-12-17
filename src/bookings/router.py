@@ -9,12 +9,12 @@ from src.bookings.schemas import BookingResponse, BookingUpdateDates
 router = APIRouter(prefix="/bookings", tags=["Bookings"])
 service = BookingService()
 
-@router.put("/{booking_id}/dates", response_model=BookingResponse)
+@router.patch("/{booking_id}/dates", response_model=BookingResponse)
 @log_execution
 def update_booking_dates(booking_id: int, update_dates: BookingUpdateDates, db: DB, current_user: User = Depends(get_current_user)):
     return service.update_dates(db, booking_id, update_dates, current_user)
 
-@router.put("/{booking_id}/cancel", response_model=BookingResponse)
+@router.patch("/{booking_id}/cancel", response_model=BookingResponse)
 @log_execution
 def cancel_booking(booking_id: int, db: DB, current_user: User = Depends(get_current_user)):
     return service.cancel_booking(db, booking_id, current_user)
