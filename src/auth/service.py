@@ -1,6 +1,7 @@
 from datetime import timedelta
 from sqlalchemy.orm import Session
 from src.config import config
+from src.logger import log_execution
 from src.auth.exceptions import UnauthorizedAction
 
 from src.auth.utils import create_access_token, verify_password
@@ -12,6 +13,7 @@ class AuthService:
     def __init__(self):
         self.user_repo = UserRepository()
 
+    @log_execution
     def authenticate_user(self, db: Session, email: str, password: str) -> TokenResponse:
 
         user = self.user_repo.get_by_email(db, email)

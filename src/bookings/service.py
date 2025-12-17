@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from src.models import User, Status
+from src.logger import log_execution
 from src.auth.exceptions import UnauthorizedAction
 from src.bookings.repository import BookingRepository
 from src.bookings.exceptions import BookingNotFound, BookingUpdateNotAllowed, BookingClosed
@@ -9,6 +10,7 @@ class BookingService:
     def __init__(self):
         self.booking_repo = BookingRepository()
     
+    @log_execution
     def update_dates(self, db: Session, booking_id: int, update_data: BookingUpdateDates, current_user: User) -> BookingResponse:
 
         booking = self.booking_repo.get_by_id(db, booking_id)
@@ -39,6 +41,7 @@ class BookingService:
         
         return self.booking_repo.update_dates(db, booking, new_dates)
     
+    @log_execution
     def cancel_booking(self, db: Session, booking_id: int, current_user: User) -> BookingResponse:
         booking = self.booking_repo.get_by_id(db, booking_id)
         if not booking:
@@ -52,6 +55,7 @@ class BookingService:
 
         return self.booking_repo.cancel_booking(db, booking)
     
+    @log_execution
     def confirm_booking(self, db: Session, booking_id: int) -> BookingResponse:
         booking = self.booking_repo.get_by_id(db, booking_id)
         if not booking:
