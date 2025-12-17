@@ -1,63 +1,36 @@
-from datetime import datetime
 from sqlalchemy.orm import Session
 from src.trips.repository import TripRepository
-from src.models import Trip, Payment, Car, CarStatus, Status, FuelType
-from src.exceptions import NotFound, BadRequest
+from src.cars.repository import CarRepository
+from src.models import FuelType, CarModel
+from src.exceptions import BadRequest, NotFound
+from decimal import Decimal
 
 class TripService:
     def __init__(self):
         self.trip_repo = TripRepository()
+        self.car_repo = CarRepository()
 
-    def get_available_cars_for_trip(
-        self, 
-        db: Session, 
-        location_id: int = None, 
-        max_price: float = None, 
-        fuel: FuelType = None
-    ):
+    # Simple Selects
+    def search_available_cars(self, db: Session, location_id: int, max_price: float, fuel: FuelType):
+        return self.car_repo.get_available_cars(db, location_id, max_price, fuel)
 
-        return self.trip_repo.get_available_cars(db, location_id, max_price, fuel)
-
-    def finish_trip(self, db: Session, trip_id: int, end_location_id: int):
-        trip = db.query(Trip).filter(Trip.trip_id == trip_id).first()
-        if not trip:
-            raise NotFound(detail="Trip not found")
+    # Delete Scenario
+    def decommission_car(self, db: Session, car_id: int):
+        if self.trip_repo.has_car_trips(db, car_id):
+            raise BadRequest(detail="Cannot delete car: history of trips exists.")
         
-        if trip.end_time:
-            raise BadRequest(detail="Trip is already finished")
+        success = self.car_repo.hard_delete_car(db, car_id)
+        if not success:
+            raise NotFound(detail="Car not found")
+        return {"message": "Car deleted"}
 
-        end_time = datetime.now()
-        duration = end_time - trip.start_time
-        hours = max(1, duration.total_seconds() / 3600)
-
-        try:
-            base_price = trip.booking_rel.car_rel.model_rel.base_price
-        except AttributeError:
-            raise BadRequest(detail="Could not calculate price: Car model information missing")
-            
-        final_price = base_price * int(hours)
-
-        try:
-            trip.end_time = end_time
-            trip.price = final_price
-            trip.end_location = end_location_id
-
-            new_payment = Payment(
-                trip_id=trip.trip_id,
-                amount=final_price,
-                payment_date=end_time,
-                status=Status.COMPLETED
-            )
-            db.add(new_payment)
-
-            car = trip.booking_rel.car_rel
-            car.status = CarStatus.AVAILABLE
-            car.location = end_location_id
-
-            db.commit() 
-            db.refresh(trip)
-            return trip
-            
-        except Exception as e:
-            db.rollback() 
-            raise BadRequest(detail=f"Transaction failed: {str(e)}")
+    # Update Scenario (НОВЕ)
+    def update_model_price(self, db: Session, model_id: int, new_price: Decimal):
+        model = db.query(CarModel).filter(CarModel.model_id == model_id).first()
+        if not model:
+            raise NotFound(detail="Car model not found")
+        
+        model.base_price = new_price
+        db.commit()
+        db.refresh(model)
+        return model
