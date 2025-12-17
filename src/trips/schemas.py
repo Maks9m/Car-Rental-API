@@ -14,3 +14,6 @@ class TripResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TripFinishRequest(BaseModel):
+    end_location_id: int = Field(..., description="ID локації, де користувач залишив авто")
