@@ -1,42 +1,15 @@
 from sqlalchemy.orm import Session
-from src.models import Car, CarModel, CarLocation, CarStatus, FuelType
+from src.models import Trip, Booking
 
 class TripRepository:
-    def get_available_cars(
-        self, 
-        db: Session, 
-        location_id: int = None, 
-        max_price: float = None, 
-        fuel: FuelType = None
-    ):
+    def get_trip_by_id(self, db: Session, trip_id: int):
+        return db.query(Trip).filter(Trip.trip_id == trip_id).first()
+
+    def has_car_trips(self, db: Session, car_id: int) -> bool:
         """
-        Реалізація завдання Simple Selects:
-        JOIN Car + CarModel + CarLocation з фільтрацією.
+        Перевіряє, чи є поїздки для авто. 
+        Оскільки Trip зв'язаний з Car через Booking:
+        Trip -> Booking -> Car
         """
-
-        query = db.query(
-            Car.car_id,
-            Car.license_plate,
-            Car.status,
-            CarModel.model_name,
-            CarModel.fuel_type,
-            CarModel.base_price,
-            CarLocation.address
-        ).join(
-            CarModel, Car.model_id == CarModel.model_id
-        ).join(
-            CarLocation, Car.location == CarLocation.car_location_id
-        )
-
-        query = query.filter(Car.status == CarStatus.AVAILABLE)
-
-        if location_id:
-            query = query.filter(Car.location == location_id)
-
-        if max_price:
-            query = query.filter(CarModel.base_price <= max_price)
-
-        if fuel:
-            query = query.filter(CarModel.fuel_type == fuel)
-
-        return query.all()
+        trip_exists = db.query(Trip).join(Booking).filter(Booking.car_id == car_id).first()
+        return trip_exists is not None
