@@ -61,6 +61,7 @@ class User(Base):
     __tablename__ = "user"
 
     user_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(128), nullable=False)
     driver_license_id: Mapped[int | None] = mapped_column(ForeignKey("driver_license.driver_license_id", ondelete="SET NULL"), index=True)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     firstname: Mapped[str] = mapped_column(String(32), nullable=False)
