@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
+
 from src.models import DriverLicense
 from src.logger import log_execution
+
 from src.driver_licenses.schemas import DriverLicenseCreate
 
 class DriverLicenseRepository:

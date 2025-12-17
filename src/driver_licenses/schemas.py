@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import date
+
 from src.models import LicenseType as ModelLicenseType
 
 

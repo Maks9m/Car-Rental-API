@@ -2,10 +2,11 @@ from datetime import datetime
 from decimal import Decimal
 from sqlalchemy.orm import Session
 
+from src.bookings.repository import BookingRepository
 from src.trips.repository import TripRepository
 from src.cars.repository import CarRepository
 from src.payments.repository import PaymentRepository
-from src.models import FuelType, CarModel, CarStatus
+from src.models import FuelType, CarModel, CarStatus, Status
 from src.exceptions import BadRequest, NotFound
 
 class TripService:
@@ -13,6 +14,7 @@ class TripService:
         self.trip_repo = TripRepository()
         self.car_repo = CarRepository()
         self.payment_repo = PaymentRepository()
+        self.booking_repo = BookingRepository()
 
     # --- 1. Simple Selects (Пошук авто) ---
     def search_available_cars(self, db: Session, location_id: int, max_price: float, fuel: FuelType):
@@ -80,6 +82,8 @@ class TripService:
             # 5. Оновлюємо статус та локацію автомобіля
             car.status = CarStatus.AVAILABLE
             car.location = end_location_id
+
+            self.booking_repo.complete_booking(db, booking)
 
             # 6. Створюємо платіж через PaymentRepository (у статусі PENDING)
             self.payment_repo.create_pending_payment(db, trip.trip_id, total_price)

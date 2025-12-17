@@ -1,16 +1,16 @@
 from sqlalchemy.orm import Session
+
 from src.models import User
 from src.logger import log_execution
-
-from src.users.schemas import UserCreate, UserInfo, UserResponse, UserRegister
-from src.users.exceptions import UserNotFound, EmptyUsersTable, UserAlreadyExists
-from src.users.repository import UserRepository
 
 from src.auth.utils import hash_password
 
 from src.driver_licenses.repository import DriverLicenseRepository
 from src.driver_licenses.exceptions import DriverLicenseAlreadyExists
-from src.driver_licenses.schemas import DriverLicenseCreate
+
+from src.users.schemas import UserCreate, UserInfo, UserResponse, UserRegister, UserUpdate
+from src.users.exceptions import UserNotFound, EmptyUsersTable, UserAlreadyExists
+from src.users.repository import UserRepository
 
 
 class UserService:
@@ -76,3 +76,11 @@ class UserService:
             db.rollback()
             raise e
         
+    @log_execution
+    def update_user_info(self, db: Session, user_id: int, update_data: UserUpdate) -> UserResponse:
+        user = self.user_repo.get_by_id(db, user_id)    
+        if not user:
+            raise UserNotFound(user_id)
+        
+        updated_user = self.user_repo.update(db, user, update_data)
+        return updated_user
