@@ -5,9 +5,7 @@ from faker import Faker
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
-# Імпортуємо твої моделі та налаштування БД
-# Переконайся, що імпорти відповідають твоїй структурі папок
-from src.database import SessionLocal, engine
+from src.database import SessionLocal
 from src.models import (
     DriverLicense, User, CarLocation, CarModel, Car, Booking, Trip, Payment,
     LicenseType, FuelType, Status, CarStatus, PaymentType
@@ -25,7 +23,6 @@ NUM_BOOKINGS = 100
 def reset_database(session: Session):
     """Очищає таблиці перед наповненням (Опціонально)"""
     print("Cleaning database...")
-    # Вимикаємо перевірку зовнішніх ключів для швидкого видалення (Postgres/SQLite)
     try:
         session.execute(text("TRUNCATE TABLE payment, trip, booking, car, car_model, car_location, \"user\", driver_license RESTART IDENTITY CASCADE;"))
     except Exception:
@@ -74,8 +71,7 @@ def create_models():
     return models
 
 def seed_data(session: Session):
-    # 0. Очистка (розкоментуй, якщо хочеш завжди чисту базу)
-    # reset_database(session)
+    reset_database(session)
 
     # Перевірка, чи база вже заповнена
     if session.query(User).count() > 0:
@@ -126,10 +122,9 @@ def seed_data(session: Session):
         booking = Booking(
             user_id=user.user_id,
             car_id=car.car_id,
-            status=booking_status
-            # Примітка: Якщо ти вже додав start_date/end_date у модель Booking, розкоментуй це:
-            # start_date=fake.date_this_year(),
-            # end_date=fake.date_this_year() + timedelta(days=random.randint(1, 5))
+            status=booking_status,
+            start_date=fake.date_this_year(),
+            end_date=fake.date_this_year() + timedelta(days=random.randint(1, 5))
         )
         session.add(booking)
         session.flush()
@@ -140,8 +135,8 @@ def seed_data(session: Session):
             end_time = start_time + timedelta(hours=random.randint(1, 48))
             
             trip = Trip(
-                book_id=booking.book_id,
-                start_location=car.location, # Беремо поточну локацію авто
+                booking_id=booking.booking_id,
+                start_location=car.location,
                 end_location=random.choice(locations).car_location_id,
                 start_time=start_time,
                 end_time=end_time,
