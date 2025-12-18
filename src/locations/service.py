@@ -6,3 +6,6 @@ class LocationService:
 
     def get_analytics(self, db):
         return self.repo.get_financial_report(db)
+
+    def list_all(self, db):
+        return self.repo.get_all(db)
