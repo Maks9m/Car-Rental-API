@@ -24,15 +24,15 @@ def get_all_users(db: DB):
 def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user
 
+@router.get("/ranking", response_model=list[UserRankingResponse])
+@log_execution
+def get_user_ranking(db: DB):
+    return service.get_users_ranking(db)
+
 @router.get("/{user_id}", response_model=UserResponse)
 @log_execution
 def get_user_by_id(user_id: int, db: DB):
     return service.get_user_by_id(db, user_id)
-
-@router.get("/ranking", response_model=list[UserRankingResponse])
-@log_execution
-def get_user_ranking(limit: int | None, db: DB):
-    return service.get_users_ranking(db, limit)
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 @log_execution

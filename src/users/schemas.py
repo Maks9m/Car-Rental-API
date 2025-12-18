@@ -30,9 +30,11 @@ class UserRankingResponse(BaseModel):
     user_id: int
     firstname: str
     lastname: str
-    total_bookings: int
-    total_spent: Decimal
+    total_bookings: int | None
+    total_spent: Decimal | None
     rank: int
+
+    model_config = {"from_attributes": True}
 
 class UserCreate(UserBase):
     password_hash: str

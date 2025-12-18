@@ -25,17 +25,17 @@ class UserRepository:
                 User.user_id,
                 User.firstname,
                 User.lastname,
-                func.count(Booking.book_id).label("total_bookings"),
-                func.sum(Payment.amount).label("total_spent"),
+                func.count(Booking.booking_id).label("total_bookings"),
+                func.coalesce(func.sum(Payment.amount), 0).label("total_spent"),
                 func.dense_rank().over(
                     order_by=[
-                        func.count(Booking.book_id).desc(),
-                        func.sum(Payment.amount).desc()
+                        func.count(Booking.booking_id).desc(),
+                        func.coalesce(func.sum(Payment.amount), 0).desc()
                     ]
                 ).label("rank")
             )
             .join(Booking, User.user_id == Booking.user_id)
-            .join(Trip, Booking.book_id == Trip.book_id)
+            .join(Trip, Booking.booking_id == Trip.booking_id)
             .join(Payment, Trip.trip_id == Payment.trip_id)
             .where(Booking.status != Status.CANCELED)
             .group_by(User.user_id, User.firstname, User.lastname)

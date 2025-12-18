@@ -47,13 +47,10 @@ class UserService:
         return user
     
     @log_execution
-    def get_users_ranking(self, db: Session, limit: int | None = None) -> list[UserRankingResponse]:
+    def get_users_ranking(self, db: Session) -> list[UserRankingResponse]:
         ranked_users = self.user_repo.get_ranking(db)
         if not ranked_users:
             raise EmptyUsersTable()
-        
-        if limit:
-            ranked_users = ranked_users[:limit]
         
         return ranked_users
     

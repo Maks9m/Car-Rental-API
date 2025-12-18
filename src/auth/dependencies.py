@@ -9,8 +9,6 @@ from src.models import User
 from src.config import config
 from src.exceptions import Unauthorized
 
-from src.users.repository import UserRepository
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)) -> User:
@@ -24,6 +22,8 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
         
     except JWTError:
         raise Unauthorized("Could not validate credentials")
+    
+    from src.users.repository import UserRepository
     
     user_repo = UserRepository()
     user = user_repo.get_by_email(db, user_email)
