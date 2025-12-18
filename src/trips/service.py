@@ -3,7 +3,7 @@ from decimal import Decimal
 from src.trips.repository import TripRepository
 from src.payments.repository import PaymentRepository
 from src.models import CarStatus
-from src.exceptions import BadRequest, NotFound
+from src.trips.exceptions import TripNotFound, TripAlreadyFinished, TripTransactionError
 
 class TripService:
     def __init__(self):
@@ -12,7 +12,10 @@ class TripService:
 
     def finish_trip(self, db, trip_id, end_location_id):
         trip = self.trip_repo.get_trip_by_id(db, trip_id)
-        if not trip or trip.end_time: raise BadRequest(detail="Invalid trip")
+        if not trip:
+            raise TripNotFound()
+        if trip.end_time:
+            raise TripAlreadyFinished()
 
         car = trip.booking_rel.car_rel
         duration = datetime.now() - trip.start_time
@@ -26,7 +29,7 @@ class TripService:
             return trip
         except Exception as e:
             db.rollback()
-            raise BadRequest(detail=str(e))
-
+            raise TripTransactionError(error_message=str(e))
+            
     def list_trips(self, db):
         return self.trip_repo.get_all(db)

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from src.cars.repository import CarRepository
 from src.trips.repository import TripRepository
-from src.exceptions import BadRequest, NotFound
+from src.cars.exceptions import CarNotFound, ModelNotFound, CarDeleteError
 
 class CarService:
     def __init__(self):
@@ -13,15 +13,15 @@ class CarService:
 
     def decommission_car(self, db: Session, car_id: int):
         if self.trip_repo.has_car_trips(db, car_id):
-            raise BadRequest(detail="Cannot delete car: history of trips exists.")
+           raise CarDeleteError()
         if not self.repo.hard_delete_car(db, car_id):
-            raise NotFound(detail="Car not found")
+            raise CarNotFound()
         db.commit()
         return {"message": "Car successfully deleted"}
 
     def update_model_price(self, db: Session, model_id: int, new_price):
         model = self.repo.get_model_by_id(db, model_id)
-        if not model: raise NotFound(detail="Model not found")
+        if not model: raise ModelNotFound()
         model.base_price = new_price
         db.commit()
         return model
