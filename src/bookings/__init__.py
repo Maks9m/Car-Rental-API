@@ -1,0 +1,1 @@
+from src.bookings.router import router as bookings_router

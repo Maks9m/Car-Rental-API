@@ -11,8 +11,8 @@ class CarSearchResponse(BaseModel):
     address: str
     status: CarStatus
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
+        
 
 class CarModelUpdate(BaseModel):
     base_price: Decimal = Field(..., ge=0.1)
