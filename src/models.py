@@ -48,8 +48,8 @@ class PaymentType(str, PyEnum):
 class DriverLicense(Base):
     __tablename__ = "driver_license"
 
-    driver_license_id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    license_number: Mapped[str] = mapped_column(CHAR(10), unique=True, nullable=False, index=True)
+    driver_license_id: Mapped[int] = mapped_column(primary_key=True)
+    license_number: Mapped[str] = mapped_column(CHAR(10), unique=True, nullable=False)
     license_type: Mapped[LicenseType] = mapped_column(Enum(LicenseType), nullable=False)
     expiry_date: Mapped[date] = mapped_column(Date, nullable=False)
 
@@ -60,10 +60,10 @@ class DriverLicense(Base):
 class User(Base):
     __tablename__ = "user"
 
-    user_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(primary_key=True)
     password_hash: Mapped[str] = mapped_column(String(128), nullable=False)
     driver_license_id: Mapped[int | None] = mapped_column(ForeignKey("driver_license.driver_license_id", ondelete="SET NULL"), index=True)
-    email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     firstname: Mapped[str] = mapped_column(String(32), nullable=False)
     lastname: Mapped[str] = mapped_column(String(32), nullable=False)
 
@@ -75,7 +75,7 @@ class User(Base):
 class CarLocation(Base):
     __tablename__ = "car_location"
 
-    car_location_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    car_location_id: Mapped[int] = mapped_column(primary_key=True)
     address: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Relationships
@@ -87,8 +87,8 @@ class CarLocation(Base):
 class CarModel(Base):
     __tablename__ = "car_model"
 
-    model_id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    model_name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    model_id: Mapped[int] = mapped_column(primary_key=True)
+    model_name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     fuel_type: Mapped[FuelType] = mapped_column(Enum(FuelType), nullable=False)
     base_price: Mapped[Decimal] = mapped_column(DECIMAL(8, 2), nullable=False)
 
@@ -103,10 +103,10 @@ class CarModel(Base):
 class Car(Base):
     __tablename__ = "car"
 
-    car_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    car_id: Mapped[int] = mapped_column(primary_key=True)
     model_id: Mapped[int] = mapped_column(ForeignKey("car_model.model_id", ondelete="RESTRICT"), nullable=False, index=True)
     location: Mapped[int | None] = mapped_column(ForeignKey("car_location.car_location_id", ondelete="SET NULL"), index=True)
-    license_plate: Mapped[str] = mapped_column(String(20), unique=True, nullable=False, index=True)
+    license_plate: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
     status: Mapped[CarStatus] = mapped_column(Enum(CarStatus), nullable=False, index=True)
 
     # Relationships
@@ -118,7 +118,7 @@ class Car(Base):
 class Booking(Base):
     __tablename__ = "booking"
 
-    booking_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    booking_id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("user.user_id", ondelete="SET NULL"), index=True)
     car_id: Mapped[int | None] = mapped_column(ForeignKey("car.car_id", ondelete="SET NULL"), index=True)
     status: Mapped[Status] = mapped_column(Enum(Status), default=Status.PENDING, index=True)
@@ -138,7 +138,7 @@ class Booking(Base):
 class Trip(Base):
     __tablename__ = "trip"
 
-    trip_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    trip_id: Mapped[int] = mapped_column(primary_key=True)
     booking_id: Mapped[int | None] = mapped_column(ForeignKey("booking.booking_id", ondelete="SET NULL"), index=True)
     start_location: Mapped[int | None] = mapped_column(ForeignKey("car_location.car_location_id", ondelete="SET NULL"), index=True)
     end_location: Mapped[int | None] = mapped_column(ForeignKey("car_location.car_location_id", ondelete="SET NULL"), index=True)
@@ -160,7 +160,7 @@ class Trip(Base):
 class Payment(Base):
     __tablename__ = "payment"
 
-    payment_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    payment_id: Mapped[int] = mapped_column(primary_key=True)
     trip_id: Mapped[int | None] = mapped_column(ForeignKey("trip.trip_id", ondelete="SET NULL"), index=True)
     payment_date: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=False)
     amount: Mapped[Decimal] = mapped_column(DECIMAL(8, 2), nullable=False)

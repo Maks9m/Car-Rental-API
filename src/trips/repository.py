@@ -6,10 +6,6 @@ class TripRepository:
         return db.query(Trip).filter(Trip.trip_id == trip_id).first()
 
     def has_car_trips(self, db: Session, car_id: int) -> bool:
-        """
-        Перевіряє, чи є поїздки для авто. 
-        Оскільки Trip зв'язаний з Car через Booking:
-        Trip -> Booking -> Car
-        """
+
         trip_exists = db.query(Trip).join(Booking).filter(Booking.car_id == car_id).first()
         return trip_exists is not None

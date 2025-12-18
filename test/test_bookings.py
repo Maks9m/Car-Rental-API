@@ -4,85 +4,6 @@ from fastapi import status
 from src.models import Booking, Car, CarModel, CarLocation, DriverLicense, User, Status, LicenseType, FuelType, CarStatus
 from src.auth.dependencies import get_current_user
 
-# --- Fixtures для створення тестових даних ---
-
-@pytest.fixture
-def test_user(db_session):
-    """Створює тестового користувача"""
-    license = DriverLicense(
-        license_number="D1234567",
-        license_type=LicenseType.B,
-        expiry_date=date.today() + timedelta(days=365 * 3)
-    )
-    db_session.add(license)
-    db_session.commit()
-    db_session.refresh(license)
-
-    user = User(
-        email="renter@example.com",
-        firstname="Renter",
-        lastname="Test",
-        password_hash="hashed_secret",
-        driver_license_id=license.driver_license_id
-    )
-    db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
-    return user
-
-@pytest.fixture
-def another_user(db_session):
-    """Створює іншого користувача (для перевірки прав доступу)"""
-    license = DriverLicense(
-        license_number="D0123456",
-        license_type=LicenseType.B,
-        expiry_date=date.today() + timedelta(days=365 * 3)
-    )
-    db_session.add(license)
-    db_session.commit()
-    db_session.refresh(license)
-
-    user = User(
-        email="other@example.com",
-        firstname="Other",
-        lastname="Person",
-        password_hash="hashed_secret",
-        driver_license_id=license.driver_license_id
-    )
-    db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
-    return user
-
-@pytest.fixture
-def test_car(db_session):
-    """Створює тестове авто"""
-    # Спочатку потрібні Location та Model
-    loc = CarLocation(address="Test St 1")
-    db_session.add(loc)
-    
-    model = CarModel(
-        model_name="Tesla Model S", 
-        fuel_type=FuelType.ELECTRIC, 
-        base_price=100.00
-    )
-    db_session.add(model)
-    db_session.commit()
-    db_session.refresh(loc)
-    db_session.refresh(model)
-
-    car = Car(
-        model_id=model.model_id,
-        location=loc.car_location_id,
-        license_plate="TESLA001",
-        status=CarStatus.AVAILABLE
-    )
-    db_session.add(car)
-    db_session.commit()
-    db_session.refresh(car)
-    return car
-
-# --- Тести ---
 
 def test_update_booking_dates_success(client, db_session, test_user, test_car):
     """Тест: Успішна зміна дат бронювання"""
@@ -110,7 +31,7 @@ def test_update_booking_dates_success(client, db_session, test_user, test_car):
         "car_id": test_car.car_id # Твоя схема вимагає це поле
     }
 
-    response = client.put(f"/bookings/{booking.booking_id}/dates", json=payload)
+    response = client.patch(f"/bookings/{booking.booking_id}/dates", json=payload)
 
     # 4. Перевірка
     assert response.status_code == status.HTTP_200_OK
@@ -149,7 +70,7 @@ def test_update_booking_dates_conflict(client, db_session, test_user, test_car):
         "car_id": test_car.car_id
     }
 
-    response = client.put(f"/bookings/{booking1.booking_id}/dates", json=payload)
+    response = client.patch(f"/bookings/{booking1.booking_id}/dates", json=payload)
 
     assert response.status_code == status.HTTP_409_CONFLICT
     assert "not available" in response.json()["detail"]
@@ -168,12 +89,12 @@ def test_cancel_booking_success(client, db_session, test_user, test_car):
 
     client.app.dependency_overrides[get_current_user] = lambda: test_user
 
-    response = client.put(f"/bookings/{booking.booking_id}/cancel")
+    response = client.patch(f"/bookings/{booking.booking_id}/cancel")
 
     assert response.status_code == status.HTTP_200_OK
     # Перевіряємо, що статус змінився. 
     # Примітка: перевір, чи повертає API 'canceled' або 'CANCELLED' залежно від твого Enum/Repo
-    assert response.json()["status"].upper() in ["CANCELED", "CANCELLED"] 
+    assert response.json()["status"].upper() =="CANCELED" 
 
 def test_cancel_booking_not_owner(client, db_session, test_user, another_user, test_car):
     """Тест: Спроба скасувати чуже бронювання"""
@@ -190,7 +111,7 @@ def test_cancel_booking_not_owner(client, db_session, test_user, another_user, t
     # Ми залогінені як test_user, а бронювання належить another_user
     client.app.dependency_overrides[get_current_user] = lambda: test_user
 
-    response = client.put(f"/bookings/{booking.booking_id}/cancel")
+    response = client.patch(f"/bookings/{booking.booking_id}/cancel")
 
     # Очікуємо 401 або 403 залежно від того, що кидає UnauthorizedAction
     assert response.status_code in [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
@@ -216,7 +137,29 @@ def test_update_closed_booking(client, db_session, test_user, test_car):
         "car_id": test_car.car_id
     }
 
-    response = client.put(f"/bookings/{booking.booking_id}/dates", json=payload)
+    response = client.patch(f"/bookings/{booking.booking_id}/dates", json=payload)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "closed" in response.json()["detail"]
+
+def test_create_booking_success(client, test_user, test_car):
+    """Тест: Створення нового бронювання"""
+    client.app.dependency_overrides[get_current_user] = lambda: test_user
+    
+    payload = {
+        "car_id": test_car.car_id,
+        "start_date": (date.today() + timedelta(days=1)).isoformat(),
+        "end_date": (date.today() + timedelta(days=3)).isoformat()
+    }
+    
+    response = client.post("/bookings/create", json=payload)
+    assert response.status_code == 201
+    assert response.json()["status"] == "pending"
+
+def test_get_my_driver_license(client, test_user):
+    """Тест: Отримання своїх прав"""
+    client.app.dependency_overrides[get_current_user] = lambda: test_user
+    
+    response = client.get("/driver-licenses/me")
+    assert response.status_code == 200
+    assert "license_number" in response.json()

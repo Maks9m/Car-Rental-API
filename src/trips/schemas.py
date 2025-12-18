@@ -12,8 +12,7 @@ class TripResponse(BaseModel):
     price: Decimal | None
     status: str = "COMPLETED"
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 class TripFinishRequest(BaseModel):
     end_location_id: int = Field(..., description="ID локації, де користувач залишив авто")

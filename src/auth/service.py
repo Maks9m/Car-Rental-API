@@ -1,9 +1,10 @@
 from datetime import timedelta
 from sqlalchemy.orm import Session
+
 from src.config import config
 from src.logger import log_execution
-from src.auth.exceptions import UnauthorizedAction
 
+from src.auth.exceptions import UnauthorizedAction
 from src.auth.utils import create_access_token, verify_password
 from src.auth.schema import TokenResponse
 
