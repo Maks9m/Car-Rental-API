@@ -5,7 +5,6 @@ from decimal import Decimal
 
 class PaymentRepository:
     def create_pending_payment(self, db: Session, trip_id: int, amount: Decimal):
-        """Створює запис про платіж у статусі PENDING."""
         new_payment = Payment(
             trip_id=trip_id,
             amount=amount,
