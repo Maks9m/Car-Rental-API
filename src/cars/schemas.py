@@ -13,14 +13,13 @@ class CarSearchResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        
 
 class CarModelUpdate(BaseModel):
-    base_price: Decimal = Field(..., ge=0.1) # Ціна має бути більше 0
+    base_price: Decimal = Field(..., ge=0.1)
 
     @field_validator('base_price')
     @classmethod
     def validate_price(cls, v):
-        if v > 1000000: # Наприклад, обмеження в мільйон
+        if v > 1000000:
             raise ValueError('Price is too high')
         return v
