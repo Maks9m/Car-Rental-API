@@ -6,12 +6,10 @@ class LocationAnalyticsResponse(BaseModel):
     total_revenue: float
     avg_trip_cost: float
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 class LocationResponse(BaseModel):
     car_location_id: int
     address: str
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}

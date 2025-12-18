@@ -1,14 +1,14 @@
 
 import pytest
 
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
 from src.main import app
 from src.database import get_db
-from src.models import Base, Car, CarLocation, CarModel, CarStatus, DriverLicense, FuelType, LicenseType, User
+from src.models import Base, Car, CarLocation, CarModel, CarStatus, DriverLicense, FuelType, LicenseType, User, Booking, Trip, Status
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db" 
 
@@ -114,3 +114,38 @@ def test_car(db_session):
     db_session.commit()
     db_session.refresh(car)
     return car
+
+@pytest.fixture
+def setup_test_data(db_session, test_user, test_car):
+    """Об'єднує існуючі фікстури та створює активну поїздку для тестів"""
+    
+    # 1. Створюємо завершене бронювання, щоб на його основі зробити Trip
+    booking = Booking(
+        user_id=test_user.user_id,
+        car_id=test_car.car_id,
+        status=Status.COMPLETED,
+        start_date=date.today(),
+        end_date=date.today() + timedelta(days=1)
+    )
+    db_session.add(booking)
+    db_session.commit()
+    db_session.refresh(booking)
+
+    # 2. Створюємо активну поїздку (без end_time)
+    trip = Trip(
+        booking_id=booking.booking_id,
+        start_location=test_car.location,
+        start_time=datetime.now() - timedelta(hours=2),
+        end_time=None,  # Активна
+        price=None
+    )
+    db_session.add(trip)
+    db_session.commit()
+    db_session.refresh(trip)
+
+    return {
+        "user": test_user,
+        "car": test_car,
+        "trip": trip,
+        "booking": booking
+    }

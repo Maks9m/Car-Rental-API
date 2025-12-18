@@ -9,5 +9,4 @@ class PaymentResponse(BaseModel):
     status: str
     payment_date: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
