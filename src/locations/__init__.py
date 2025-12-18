@@ -1,0 +1,1 @@
+from src.locations.router import router as locations_router
