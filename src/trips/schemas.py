@@ -10,7 +10,6 @@ class TripResponse(BaseModel):
     start_time: datetime
     end_time: datetime | None
     price: Decimal | None
-    status: str = "COMPLETED"
 
     model_config = {"from_attributes": True}
 

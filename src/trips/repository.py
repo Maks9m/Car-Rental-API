@@ -9,3 +9,6 @@ class TripRepository:
 
         trip_exists = db.query(Trip).join(Booking).filter(Booking.car_id == car_id).first()
         return trip_exists is not None
+
+    def get_all(self, db: Session):
+        return db.query(Trip).all()

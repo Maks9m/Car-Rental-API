@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta
+from datetime import timedelta, datetime
 from decimal import Decimal
 from faker import Faker
 from sqlalchemy.orm import Session
@@ -112,6 +112,7 @@ def seed_data(session: Session):
     session.add_all(cars)
     session.flush()
 
+# ...existing code...
     print("Seeding Bookings, Trips and Payments...")
     for _ in range(NUM_BOOKINGS):
         user = random.choice(users)
@@ -129,11 +130,28 @@ def seed_data(session: Session):
         session.add(booking)
         session.flush()
 
-        # 2. Trip (тільки якщо бронювання завершене або підтверджене)
-        if booking_status in [Status.COMPLETED]:
-            start_time = fake.date_time_this_year()
+        # 2. Trip (логіка для активних та завершених поїздок)
+        start_time = fake.date_time_this_year()
+        # 30% поїздок робимо активними (тривають зараз)
+        is_active = random.random() < 0.3
+
+        if is_active:
+            start_time = datetime.now() - timedelta(hours=random.randint(1, 5)) 
+            trip = Trip(
+                booking_id=booking.booking_id,
+                start_location=car.location,
+                end_location=None,
+                start_time=start_time,
+                end_time=None,
+                price=None
+            )
+            # Для активної поїздки міняємо статус авто
+            car.status = CarStatus.BOOKED
+            session.add(trip)
+            session.flush()
+        else:
+            # Для завершеної поїздки генеруємо фініш
             end_time = start_time + timedelta(hours=random.randint(1, 48))
-            
             trip = Trip(
                 booking_id=booking.booking_id,
                 start_location=car.location,
@@ -145,7 +163,7 @@ def seed_data(session: Session):
             session.add(trip)
             session.flush()
 
-            # 3. Payment (для кожної поїздки)
+            # 3. Payment (для завершеної поїздки)
             payment = Payment(
                 trip_id=trip.trip_id,
                 payment_date=end_time + timedelta(minutes=5),
@@ -154,6 +172,7 @@ def seed_data(session: Session):
                 status=Status.COMPLETED
             )
             session.add(payment)
+# ...existing code...
 
     session.commit()
     print("✅ Database seeded successfully!")

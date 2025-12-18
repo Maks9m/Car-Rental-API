@@ -5,6 +5,7 @@ from src.auth import auth_router
 from src.trips import trips_router
 from src.cars import cars_router
 from src.locations import locations_router
+from src.payments import payments_router
 from src.bookings import bookings_router
 from src.driver_licenses import driver_licenses_router
 from src.config import config
@@ -17,6 +18,7 @@ app.include_router(auth_router)
 app.include_router(trips_router)
 app.include_router(cars_router)
 app.include_router(locations_router)
+app.include_router(payments_router)
 app.include_router(bookings_router)
 app.include_router(driver_licenses_router)
 
