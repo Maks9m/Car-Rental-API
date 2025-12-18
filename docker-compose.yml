@@ -14,27 +14,47 @@ services:
     networks:
       - db-network
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
+  app:
+    build: .
+    container_name: car_rental_app
     restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: root@kpi.edu
-      PGADMIN_DEFAULT_PASSWORD: password123
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-    ports:
-      - "8080:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:password123@postgres:5432/car_rental_db
+    command: >
+      sh -c "alembic upgrade head && python ./seed.py &&
+             uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
     networks:
       - db-network
+
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   restart: always
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: root@kpi.edu
+  #     PGADMIN_DEFAULT_PASSWORD: password123
+  #     PGADMIN_CONFIG_SERVER_MODE: "False"
+  #   ports:
+  #     - "8080:80"
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - db-network
 
 volumes:
   postgres_data:
     driver: local
-  pgadmin_data:
-    driver: local
+  # pgadmin_data:
+  #   driver: local
 
 networks:
   db-network:
