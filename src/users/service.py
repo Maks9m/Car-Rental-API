@@ -8,7 +8,7 @@ from src.auth.utils import hash_password
 from src.driver_licenses.repository import DriverLicenseRepository
 from src.driver_licenses.exceptions import DriverLicenseAlreadyExists
 
-from src.users.schemas import UserCreate, UserInfo, UserResponse, UserRegister, UserUpdate
+from src.users.schemas import UserCreate, UserInfo, UserRankingResponse, UserResponse, UserRegister, UserUpdate
 from src.users.exceptions import UserNotFound, EmptyUsersTable, UserAlreadyExists
 from src.users.repository import UserRepository
 
@@ -45,6 +45,14 @@ class UserService:
         if not user:
             raise UserNotFound()
         return user
+    
+    @log_execution
+    def get_users_ranking(self, db: Session) -> list[UserRankingResponse]:
+        ranked_users = self.user_repo.get_ranking(db)
+        if not ranked_users:
+            raise EmptyUsersTable()
+        
+        return ranked_users
     
     @log_execution
     def register(self, db: Session, user_data: UserRegister) -> UserResponse:

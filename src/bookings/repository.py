@@ -44,16 +44,21 @@ class BookingRepository:
         db.refresh(booking)
         return booking
     
-    def check_availability(self, db: Session, car_id: int, start_date: date, end_date: date, exclude_booking_id: int) -> bool:
-        overlapping_bookings = db.query(Booking).filter(
-            Booking.car_id == car_id,
-            and_(
-                Booking.start_date < end_date,
-                Booking.end_date > start_date
-            ),
-            Booking.status != Status.CANCELED,
-            Booking.booking_id != exclude_booking_id
-        ).count()
+    def check_availability(self, db: Session, car_id: int, start_date: date, end_date: date, exclude_booking_id: int | None = None) -> bool:
+        query =db.query(Booking).filter(
+                Booking.booking_id != exclude_booking_id,
+                Booking.car_id == car_id,
+                and_(
+                    Booking.start_date < end_date,
+                    Booking.end_date > start_date
+                ),
+                Booking.status != Status.CANCELED,
+            )
+        
+        if exclude_booking_id is None:
+            query = query.filter(Booking.booking_id != exclude_booking_id)
+
+        overlapping_bookings = query.count()
 
         return overlapping_bookings == 0
     

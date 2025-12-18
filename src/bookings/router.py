@@ -23,7 +23,6 @@ def get_user_bookings(db: DB, current_user: User = Depends(get_current_user)):
     return service.get_user_bookings(db, current_user.user_id)
 
 @router.post("/create", response_model=BookingResponse, status_code=status.HTTP_201_CREATED)
-@log_execution
 def create_booking(booking_data: BookingCreate, db: DB, current_user: User = Depends(get_current_user)):
     return service.create_booking(booking_data,db, current_user)
 

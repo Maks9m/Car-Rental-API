@@ -7,7 +7,7 @@ from src.database import DB
 from src.auth.dependencies import get_current_user
 
 from src.users.service import UserService
-from src.users.schemas import UserResponse, UserRegister, UserInfo, UserUpdate
+from src.users.schemas import UserRankingResponse, UserResponse, UserRegister, UserInfo, UserUpdate
 
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -23,6 +23,11 @@ def get_all_users(db: DB):
 @log_execution
 def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user
+
+@router.get("/ranking", response_model=list[UserRankingResponse])
+@log_execution
+def get_user_ranking(db: DB):
+    return service.get_users_ranking(db)
 
 @router.get("/{user_id}", response_model=UserResponse)
 @log_execution

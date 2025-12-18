@@ -21,7 +21,6 @@ class BookingService:
     def get_user_bookings(self, db: Session, user_id: int) -> list[BookingResponse]:
         return self.booking_repo.get_user_bookings(db, user_id)
 
-    @log_execution
     def create_booking(self, booking_data: BookingCreate, db: Session, current_user: User) -> BookingResponse:
         is_available = self.booking_repo.check_availability(
             db,
