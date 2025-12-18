@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from typing import List
 from src.database import DB
 from src.locations.service import LocationService
-from src.locations.schemas import LocationAnalyticsResponse
+from src.locations.schemas import LocationAnalyticsResponse, LocationResponse
 
 router = APIRouter(prefix="/locations", tags=["Locations"])
 service = LocationService()

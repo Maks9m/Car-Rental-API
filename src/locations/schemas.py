@@ -10,9 +10,8 @@ class LocationAnalyticsResponse(BaseModel):
         from_attributes = True
 
 class LocationResponse(BaseModel):
-    location_id: int
+    car_location_id: int
     address: str
-    city: str | None
 
     class Config:
         from_attributes = True
