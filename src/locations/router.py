@@ -10,3 +10,7 @@ service = LocationService()
 @router.get("/analytics/revenue", response_model=List[LocationAnalyticsResponse])
 def get_location_revenue_report(db: DB):
     return service.get_analytics(db)
+
+@router.get("/", response_model=List[LocationResponse])
+def get_locations(db: DB):
+    return service.list_all(db)
