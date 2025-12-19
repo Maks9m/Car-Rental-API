@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch
 from src.trips.service import TripService
 from src.exceptions import BadRequest
+from src.models import Trip
 
 def test_finish_trip_atomic_rollback(db_session, setup_test_data):
     """Перевірка атомарності: якщо платіж не створився, поїздка не завершується"""

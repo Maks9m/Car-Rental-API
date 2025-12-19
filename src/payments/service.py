@@ -6,4 +6,4 @@ class PaymentService:
         self.repo = PaymentRepository()
 
     def get_history(self, db):
-        return db.query(Payment).all() # Payment треба імпортувати з src.models
+        return db.query(Payment).all() 

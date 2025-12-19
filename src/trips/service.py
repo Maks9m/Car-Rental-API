@@ -30,6 +30,6 @@ class TripService:
         except Exception as e:
             db.rollback()
             raise TripTransactionError(error_message=str(e))
-            
+
     def list_trips(self, db):
         return self.trip_repo.get_all(db)
