@@ -7,8 +7,8 @@ from src.logger import log_execution
 from src.users.schemas import UserCreate
 
 class UserRepository:
-    def get_all(self, db: Session) -> list[User]:
-        return db.query(User).all()
+    def get_all(self, db: Session, limit: int = 10, offset: int = 0) -> list[User]:
+        return db.query(User).limit(limit).offset(offset).all()
     
     def get_by_id(self, db: Session, user_id: int) -> User | None:
         return db.query(User).filter(User.user_id == user_id).first()

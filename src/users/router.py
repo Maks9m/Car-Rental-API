@@ -16,8 +16,8 @@ service = UserService()
 
 @router.get("", response_model=list[UserResponse])
 @log_execution
-def get_all_users(db: DB):
-    return service.get_all(db)
+def get_all_users(db: DB, limit: int = 10, offset: int = 0):
+    return service.get_all(db, limit, offset)
 
 @router.get("/me", response_model=UserInfo)
 @log_execution

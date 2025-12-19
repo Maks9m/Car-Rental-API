@@ -19,8 +19,8 @@ class UserService:
         self.license_repo = DriverLicenseRepository()
 
     @log_execution
-    def get_all(self, db: Session) -> list[User]:
-        all_users = self.user_repo.get_all(db)
+    def get_all(self, db: Session, limit: int = 10, offset: int = 0) -> list[User]:
+        all_users = self.user_repo.get_all(db, limit, offset)
         if not all_users:
             raise EmptyUsersTable()
         return all_users
